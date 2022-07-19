@@ -3,19 +3,27 @@ import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import CategoriesContext from '../context'
 
+const TicketPage = ({ editMode }) => {
 
-const TicketPage = ({  }) => {
   const [formData, setFormData] = useState({
     status: 'not started',
     progress: 0,
     timestamp: new Date().toISOString(),
   })
-
   const { categories, setCategories } = useContext(CategoriesContext)
-  const editMode = false
 
   const navigate = useNavigate()
   let { id } = useParams()
+
+  const handleChange = (e) => {
+    const value = e.target.value
+    const name = e.target.name
+
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -39,28 +47,29 @@ const TicketPage = ({  }) => {
       }
     }
   }
-  
-  const handleChange = (e) => {
-    const value = e.target.value
-    const name = e.target.name
 
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }))
+  const fetchData = async () => {
+    const response = await axios.get(`http://localhost:8000/tickets/${id}`)
+    console.log('AAAAAA', response)
+    setFormData(response.data.data)
   }
 
+  useEffect(() => {
+    if (editMode) {
+      fetchData()
+    }
+  }, [])
 
-
-  console.log(formData)
-
+  console.log('EDITcategories', categories)
+  console.log('formData', formData.status)
+  console.log('formData.status', formData.status === 'stuck')
   return (
     <div className="ticket">
-      <h1>{editMode ? 'Update your Ticket' : 'Create a Ticket'}</h1>
+      <h1>{editMode ? 'Update Your Ticket' : 'Create a Ticket'}</h1>
       <div className="ticket-container">
         <form onSubmit={handleSubmit}>
           <section>
-          <label htmlFor="title">Title</label>
+            <label htmlFor="title">Title</label>
             <input
               id="title"
               name="title"
@@ -83,11 +92,11 @@ const TicketPage = ({  }) => {
             <label>Category</label>
             <select
               name="category"
-              value={formData.category || categories[0]}
+              value={formData.category}
               onChange={handleChange}
             >
               {categories?.map((category, _index) => (
-                <option key={_index} value={category}>{category}</option>
+                <option value={category}>{category}</option>
               ))}
             </select>
 
@@ -149,9 +158,9 @@ const TicketPage = ({  }) => {
               <label htmlFor="priority-5">5</label>
             </div>
 
-                {editMode && (
-            <>
-              <input
+            {editMode && (
+              <>
+                <input
                   type="range"
                   id="progress"
                   name="progress"
@@ -187,9 +196,10 @@ const TicketPage = ({  }) => {
                     Not Started
                   </option>
                 </select>
-                </>
-                )}
-                 <input type="submit" />
+              </>
+            )}
+
+            <input type="submit" />
           </section>
 
           <section>
@@ -216,9 +226,7 @@ const TicketPage = ({  }) => {
               )}
             </div>
           </section>
-          
         </form>
-
       </div>
     </div>
   )

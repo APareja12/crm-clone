@@ -6,10 +6,6 @@ import CategoriesContext from '../context';
 const Dashboard = () => {
   const [tickets, setTickets] = useState(null);
   const { categories, setCategories } = useContext(CategoriesContext)
-  
-  
-
-
 
   useEffect(async() => {
     const response = await axios.get('http://localhost:8000/tickets')
