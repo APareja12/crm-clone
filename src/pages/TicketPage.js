@@ -4,7 +4,7 @@ import axios from 'axios'
 import CategoriesContext from '../context'
 
 
-const TicketPage = () => {
+const TicketPage = ({  }) => {
   const [formData, setFormData] = useState({
     status: 'not started',
     progress: 0,
@@ -14,8 +14,30 @@ const TicketPage = () => {
   const { categories, setCategories } = useContext(CategoriesContext)
   const editMode = false
 
-  const handleSubmit = () => {
-    console.log('submitted')
+  const navigate = useNavigate()
+  let { id } = useParams()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (editMode) {
+      const response = await axios.put(`http://localhost:8000/tickets/${id}`, {
+        data: formData,
+      })
+      const success = response.status === 200
+      if (success) {
+        navigate('/')
+      }
+    }
+    if (!editMode) {
+      console.log('posting')
+      const response = await axios.post('http://localhost:8000/tickets', {
+        formData,
+      })
+      const success = response.status === 200
+      if (success) {
+        navigate('/')
+      }
+    }
   }
   
   const handleChange = (e) => {
@@ -27,6 +49,8 @@ const TicketPage = () => {
       [name]: value,
     }))
   }
+
+
 
   console.log(formData)
 
@@ -59,11 +83,11 @@ const TicketPage = () => {
             <label>Category</label>
             <select
               name="category"
-              value={formData.category}
+              value={formData.category || categories[0]}
               onChange={handleChange}
             >
               {categories?.map((category, _index) => (
-                <option value={category}>{category}</option>
+                <option key={_index} value={category}>{category}</option>
               ))}
             </select>
 
@@ -76,7 +100,7 @@ const TicketPage = () => {
               value={formData.category}
             />
 
-<label>Priority</label>
+            <label>Priority</label>
             <div className="multiple-input-container">
               <input
                 id="priority-1"
@@ -84,7 +108,7 @@ const TicketPage = () => {
                 type="radio"
                 onChange={handleChange}
                 value={1}
-                checked={formData.priority === 1}
+                checked={formData.priority == 1}
               />
               <label htmlFor="priority-1">1</label>
               <input
@@ -93,7 +117,7 @@ const TicketPage = () => {
                 type="radio"
                 onChange={handleChange}
                 value={2}
-                checked={formData.priority === 2}
+                checked={formData.priority == 2}
               />
               <label htmlFor="priority-2">2</label>
               <input
@@ -102,7 +126,7 @@ const TicketPage = () => {
                 type="radio"
                 onChange={handleChange}
                 value={3}
-                checked={formData.priority === 3}
+                checked={formData.priority == 3}
               />
               <label htmlFor="priority-3">3</label>
               <input
@@ -111,7 +135,7 @@ const TicketPage = () => {
                 type="radio"
                 onChange={handleChange}
                 value={4}
-                checked={formData.priority === 4}
+                checked={formData.priority == 4}
               />
               <label htmlFor="priority-4">4</label>
               <input
@@ -120,7 +144,7 @@ const TicketPage = () => {
                 type="radio"
                 onChange={handleChange}
                 value={5}
-                checked={formData.priority === 5}
+                checked={formData.priority == 5}
               />
               <label htmlFor="priority-5">5</label>
             </div>
